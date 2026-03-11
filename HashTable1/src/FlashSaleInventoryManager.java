@@ -9,7 +9,6 @@ public class FlashSaleInventoryManager {
 
     // Waiting list per product (FIFO)
     private Map<String, LinkedList<Integer>> waitingList;
-
     public FlashSaleInventoryManager() {
         stockMap = new ConcurrentHashMap<>();
         waitingList = new ConcurrentHashMap<>();
