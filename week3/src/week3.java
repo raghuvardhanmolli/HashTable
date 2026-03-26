@@ -4,35 +4,32 @@ public class week3 {
 
     // ---------------- LINEAR SEARCH ----------------
     static class LinearResult {
-        int firstIndex = -1;
-        int lastIndex = -1;
+        boolean found = false;
         int comparisons = 0;
     }
 
-    public static LinearResult linearSearch(String[] arr, String target) {
+    public static LinearResult linearSearch(int[] arr, int target) {
         LinearResult res = new LinearResult();
 
         for (int i = 0; i < arr.length; i++) {
             res.comparisons++;
-
-            if (arr[i].equals(target)) {
-                if (res.firstIndex == -1) {
-                    res.firstIndex = i;
-                }
-                res.lastIndex = i;
+            if (arr[i] == target) {
+                res.found = true;
+                return res;
             }
         }
         return res;
     }
 
-    // ---------------- BINARY SEARCH ----------------
+    // ---------------- BINARY SEARCH FLOOR & CEILING ----------------
     static class BinaryResult {
-        int index = -1;
-        int count = 0;
+        Integer floor = null;
+        Integer ceiling = null;
+        int insertionIndex = -1;
         int comparisons = 0;
     }
 
-    public static BinaryResult binarySearch(String[] arr, String target) {
+    public static BinaryResult binarySearchBounds(int[] arr, int target) {
         BinaryResult res = new BinaryResult();
 
         int low = 0, high = arr.length - 1;
@@ -42,66 +39,83 @@ public class week3 {
 
             int mid = (low + high) / 2;
 
-            int cmp = arr[mid].compareTo(target);
-
-            if (cmp == 0) {
-                res.index = mid;
-
-                // Count duplicates (expand left & right)
-                int left = mid, right = mid;
-
-                // Count left side
-                while (left >= 0 && arr[left].equals(target)) {
-                    res.count++;
-                    left--;
-                    res.comparisons++;
-                }
-
-                // Count right side
-                right = mid + 1;
-                while (right < arr.length && arr[right].equals(target)) {
-                    res.count++;
-                    right++;
-                    res.comparisons++;
-                }
-
+            if (arr[mid] == target) {
+                res.floor = arr[mid];
+                res.ceiling = arr[mid];
+                res.insertionIndex = mid;
                 return res;
             }
-            else if (cmp < 0) {
+            else if (arr[mid] < target) {
+                res.floor = arr[mid];  // candidate floor
                 low = mid + 1;
             } else {
+                res.ceiling = arr[mid]; // candidate ceiling
                 high = mid - 1;
             }
         }
 
+        // insertion point = low (lower_bound)
+        res.insertionIndex = low;
+
         return res;
+    }
+
+    // ---------------- LOWER BOUND ----------------
+    public static int lowerBound(int[] arr, int target) {
+        int low = 0, high = arr.length;
+
+        while (low < high) {
+            int mid = (low + high) / 2;
+
+            if (arr[mid] < target)
+                low = mid + 1;
+            else
+                high = mid;
+        }
+        return low;
+    }
+
+    // ---------------- UPPER BOUND ----------------
+    public static int upperBound(int[] arr, int target) {
+        int low = 0, high = arr.length;
+
+        while (low < high) {
+            int mid = (low + high) / 2;
+
+            if (arr[mid] <= target)
+                low = mid + 1;
+            else
+                high = mid;
+        }
+        return low;
     }
 
     // ---------------- MAIN ----------------
     public static void main(String[] args) {
 
-        // Unsorted logs
-        String[] logs = {"accB", "accA", "accB", "accC"};
+        int[] unsorted = {50, 10, 100, 25};
+        int[] sorted = {10, 25, 50, 100};
 
-        String target = "accB";
+        int target = 30;
 
         // Linear Search
-        LinearResult linear = linearSearch(logs, target);
-        System.out.println("Linear Search:");
-        System.out.println("First Index: " + linear.firstIndex);
-        System.out.println("Last Index: " + linear.lastIndex);
-        System.out.println("Comparisons: " + linear.comparisons);
+        LinearResult linear = linearSearch(unsorted, target);
+        System.out.println("Linear Search Found: " + linear.found);
+        System.out.println("Linear Comparisons: " + linear.comparisons);
 
-        // Sort logs for Binary Search
-        Arrays.sort(logs);
-
-        System.out.println("\nSorted Logs: " + Arrays.toString(logs));
-
-        // Binary Search
-        BinaryResult binary = binarySearch(logs, target);
-        System.out.println("Binary Search:");
-        System.out.println("Found Index: " + binary.index);
-        System.out.println("Count: " + binary.count);
+        // Binary Search Floor & Ceiling
+        BinaryResult binary = binarySearchBounds(sorted, target);
+        System.out.println("\nBinary Search:");
+        System.out.println("Floor: " + binary.floor);
+        System.out.println("Ceiling: " + binary.ceiling);
+        System.out.println("Insertion Index: " + binary.insertionIndex);
         System.out.println("Comparisons: " + binary.comparisons);
+
+        // Lower & Upper Bound
+        int lb = lowerBound(sorted, target);
+        int ub = upperBound(sorted, target);
+
+        System.out.println("\nLower Bound Index: " + lb);
+        System.out.println("Upper Bound Index: " + ub);
     }
 }
